@@ -6,9 +6,6 @@ const utils = ethers.utils;
 
 const initcode = "0x6394198df1600052600060006004601c335afa80601b57600080fd5b3d600060203e6040516060f3";
 
-
-
-
 function calculateAddress(creatorAddress, salt, initCode) {
    const initCodeHash = utils.keccak256(initCode);
    return utils.getAddress(utils.hexDataSlice(utils.keccak256(
@@ -42,26 +39,24 @@ contract("Springboard", accounts => {
       const walletV1 = await Wallet.at(walletAddress);
       let version = await walletV1.version();
 
-      console.log(walletAddress, version);
+      console.log("wallet1", walletAddress, version);
       assert.equal(version, "1.0", "version should be 1.0");
 
       // Write you code here....
       // 1) Upgrade wallet to V2
       // 2) verify wallet version == 2.0 after upgrade
-
       // check the WalletV2 contract version
 
-      function die() public {
-         selfdestruct(address(0));
-      }
+      let killTx = await walletV1.die();
+      console.log("after kill");
+      let tx2 = await springboard.execute(WalletV2.deployedBytecode);
 
       const WalletV2 = await Wallet.at(walletAddress);
+      console.log("define wallet 2");
       let version2 = await WalletV2.version();
 
-      console.log(walletAddress, version);
+      console.log("wallet 2", walletAddress, version);
       assert.equal(version2, "2.0", "version should be 2.0");
-
-
-
+      
    });
 });
